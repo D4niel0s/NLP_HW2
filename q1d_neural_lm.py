@@ -81,9 +81,12 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
     labels = np.zeros([BATCH_SIZE, output_dim])
 
     # Construct the data batch and run you backpropogation implementation
-    ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
+
+    for i in range(BATCH_SIZE):
+        data[i] = num_to_word_embedding[in_word_index[i]]
+        labels[i] = int_to_one_hot(out_word_index[i], output_dim)
+
+    cost, grad = forward_backward_prop(data, labels, params, dimensions)
 
     cost /= BATCH_SIZE
     grad /= BATCH_SIZE
@@ -100,9 +103,7 @@ def eval_neural_lm(eval_data_path):
     num_of_examples = len(in_word_index)
 
     perplexity = 0
-    ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
+
 
     return perplexity
 
