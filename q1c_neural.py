@@ -17,7 +17,7 @@ def forward(data, label, params, dimensions):
     # Unpack network parameters (do not modify)
     ofs = 0
     Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
-
+    
     W1 = np.reshape(params[ofs:ofs + Dx * H], (Dx, H))
     ofs += Dx * H
     b1 = np.reshape(params[ofs:ofs + H], (1, H))
@@ -29,7 +29,13 @@ def forward(data, label, params, dimensions):
     # Compute the probability
     h = sigmoid((data @ W1) + b1)
 
-    return h, softmax((h @ W2)+b2)
+    y_hat = softmax((h @ W2)+b2)
+
+    res = np.zeros(data.shape[0])
+    for i in range(data.shape[0]):
+        res[i] = y_hat[i][np.argmax(label[i])]
+    
+    return res
 
 
 def forward_backward_prop(data, labels, params, dimensions):
@@ -59,7 +65,9 @@ def forward_backward_prop(data, labels, params, dimensions):
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
-    h, y_hat = forward(data, labels, params, dimensions)
+    h = sigmoid(data @ W1 + b1)
+    y_hat = softmax(h @ W2 + b2)
+    cost = -np.sum(labels * np.log(y_hat))
 
     gradW2 = h.T @ (y_hat - labels)
     gradb2 = np.sum(y_hat - labels, axis=0)
@@ -69,7 +77,6 @@ def forward_backward_prop(data, labels, params, dimensions):
     gradW1 = data.T @ delta
     gradb1 = np.sum(delta, axis=0)
 
-    cost = -np.sum(labels * np.log(y_hat))
 
     # Stack gradients (do not modify)
     grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
